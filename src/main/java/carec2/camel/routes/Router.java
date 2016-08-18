@@ -22,20 +22,32 @@ public class Router extends FatJarRouter {
                 .log(LoggingLevel.ERROR, "carec2.camel.routes", "Unexpected exception ${exception}");
 
         Processor processor = new Processor();
-        String hl7Dir = (System.getenv("HL7MSGS_DIR")== null) ? processor.getPropValues("hl7-message-dir") : System.getenv("HL7MSGS_DIR");;
+        String hl7Dir = processor.getPropValues("hl7-message-dir");
+        String ehrServer = processor.getPropValues("ehr.server");
+        String ehrPort = processor.getPropValues("ehr.port");
 
-//      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Camel-Route")
-//                .unmarshal()
-//                .hl7(false)
-//                .to("mllpport")
-//                .to("bean:respondACK?method=process");
 
-        from("mllpport").routeId("Audit-Camel-Route")
-                .onException(Exception.class).handled(true)
-                .setExchangePattern(ExchangePattern.InOnly)
+        from("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true").routeId("Audit-Camel-Route")
+//                .onException(Exception.class).handled(true)
+//                .setExchangePattern(ExchangePattern.InOnly)
+                .to("bean:processor?method=print")
+                .transform().simple("bean:hl7MessageService?method=createHL7Message")
                 .to("mongodb:mongo?database=microservices&collection=messages&operation=insert")
                 .to("bean:processor?method=publishToQueue")
                 .to("bean:respondACK?method=process");
+
+      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Camel-Route")
+                .unmarshal()
+                .hl7(false)
+                .to("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true")
+                .to("bean:respondACK?method=process");
+
+//        from("mllpport").routeId("Audit-Camel-Route")
+//                .onException(Exception.class).handled(true)
+//                .setExchangePattern(ExchangePattern.InOnly)
+//                .to("mongodb:mongo?database=microservices&collection=messages&operation=insert")
+//                .to("bean:processor?method=publishToQueue")
+//                .to("bean:respondACK?method=process");
 
 //        from("activemq:").routeId("Validation-Camel-Route")
 //                .onException(Exception.class).handled(true)

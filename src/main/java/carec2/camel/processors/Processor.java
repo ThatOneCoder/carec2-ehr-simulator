@@ -67,6 +67,12 @@ public class Processor {
         }
     }
 
+    public void print(String msg) {
+        System.out.println("RAW MESSAGE");
+        System.out.println("TESTING");
+        System.out.println(msg);
+    }
+
 
 }
 
