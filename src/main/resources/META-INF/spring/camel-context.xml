@@ -2,8 +2,8 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                            http://camel.apache.org/schema/spring
@@ -34,7 +34,7 @@
 
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
        <contextScan/>
-
+        <camel:package>org.apache.camel.spring.example</camel:package>
         <!-- configure the server/port in the endpoint.properties file  -->
         <camel:endpoint id="mllpport"
                         uri="mina:tcp://localhost:4444?sync=true&amp;codec=#hl7codec"/>

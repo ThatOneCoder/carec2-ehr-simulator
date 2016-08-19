@@ -1,11 +1,10 @@
 package carec2.domain;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-
 @Document
-public class HL7Message implements Serializable {
+public class HL7Message {
     @Id
     private String id;
     private String episode;

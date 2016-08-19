@@ -1,6 +1,9 @@
 package carec2.camel.processors;
 
 import carec2.camel.ActiveMQProducer;
+import carec2.domain.HL7Message;
+import carec2.service.HL7MessageAssembler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -9,6 +12,9 @@ import java.util.Properties;
 
 @Component
 public class Processor {
+
+    @Autowired
+    private HL7MessageAssembler HL7MessageAssembler;
 
     public String getPropValues(String property) throws IOException {
         String result = "";
@@ -67,6 +73,16 @@ public class Processor {
         }
     }
 
+    public HL7Message createHL7Message(String inMessage){
+        HL7Message persist = null;
+        try{
+            persist =  HL7MessageAssembler.toRawMessage(inMessage);
+        }catch (Exception e){
+            //log.error("" + e.getMessage());
+            e.printStackTrace();
+        }
+        return persist;
+    }
 
 }
 

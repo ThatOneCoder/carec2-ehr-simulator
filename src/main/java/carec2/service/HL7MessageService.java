@@ -11,10 +11,6 @@ public class HL7MessageService {
     private static final Logger log = LoggerFactory.getLogger(HL7MessageService.class);
     private HL7MessageAssembler HL7MessageAssembler;
 
-    private final String inMessage = "MSH|^~\\&|hl7Integration|hl7Integration|||||ADT^A01|||2.5|\r" +
-            "EVN|A01|20130617154644\r" +
-            "PID|1|465 306 5961||407623|Wood^Patrick^^^MR||19700101|1|||High Street^^Oxford^^Ox1 4DP~George St^^Oxford^^Ox1 5AP|||||||";
-
     @Autowired
     HL7MessageService(HL7MessageAssembler HL7MessageAssembler){
         this.HL7MessageAssembler = HL7MessageAssembler;
@@ -24,7 +20,7 @@ public class HL7MessageService {
         return messageAssembler.toRawMessage(inMessage);
     }
 */
-    public HL7Message createHL7Message(){
+    public HL7Message createHL7Message(String inMessage){
         HL7Message persist = null;
         try{
             persist =  HL7MessageAssembler.toRawMessage(inMessage);
