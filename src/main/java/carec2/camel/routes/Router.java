@@ -1,15 +1,14 @@
 package carec2.camel.routes;
 
 import carec2.camel.processors.Processor;
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.spring.boot.FatJarRouter;
+import org.apache.camel.spring.SpringRouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Router extends FatJarRouter {
+public class Router extends SpringRouteBuilder {
     private static Logger log = LoggerFactory.getLogger(Router.class);
 
     @Override
@@ -33,17 +32,23 @@ public class Router extends FatJarRouter {
 //                .to("bean:respondACK?method=process");
 
         from("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true").routeId("Audit-Camel-Route")
-//                .onException(Exception.class).handled(true)
-//                .setExchangePattern(ExchangePattern.InOnly)
-                .to("bean:processor?method=print")
-                .transform().simple("bean:hl7MessageService?method=createHL7Message")
-        from("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true").routeId("Audit-Camel-Route")
-//                .onException(Exception.class).handled(true)
-//                .setExchangePattern(ExchangePattern.InOnly)
-                .transform().simple("bean:processor?method=createHL7Message")
-                .to("mongodb:mongo?database=microservices&collection=messages&operation=insert")
-                .to("bean:processor?method=publishToQueue")
+//                .onException(Exception.class).handled(true).process(new org.apache.camel.Processor() {
+//                    @Override
+//                    public void process(Exchange exchange) {
+//                        exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class).printStackTrace();
+//                    }
+//                })
+                .convertBodyTo(String.class)
+                .to("bean:processorAudit?method=processMessage")
+//                .to("bean:processor?method=publishToQueue")
                 .to("bean:respondACK?method=process");
+
+        from("file:" + hl7Dir + "?noop=true").routeId("EHR-Camel-Route")
+                .unmarshal()
+                .hl7(false)
+                .to("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true")
+                .end();
+
 
 //        from("activemq:").routeId("Validation-Camel-Route")
 //                .onException(Exception.class).handled(true)

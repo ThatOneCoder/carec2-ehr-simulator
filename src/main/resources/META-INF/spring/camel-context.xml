@@ -11,13 +11,6 @@
 
     <context:component-scan base-package="carec2"/>
 
-    <!-- ================================== -->
-    <!-- Define camel context               -->
-    <!-- ================================== -->
-    <camel:camelContext id="camel">
-        <!-- Location for route scan -->
-        <camel:package>carec2.camel.routes</camel:package>
-    </camel:camelContext>
 
     <!-- ================================== -->
     <!-- Define netty  codecs               -->
@@ -28,17 +21,6 @@
     <!-- String to ChannelBuffer/ByteBuf -->
     <bean id="stringEncoder" class="org.jboss.netty.handler.codec.string.StringEncoder"/>
 
-
-    <bean id="mongo" class="com.mongodb.Mongo">
-        <constructor-arg index="0">
-            <bean class="com.mongodb.MongoURI">
-                <constructor-arg index="0"
-                                 value="mongodb://localhost:27017/ldef_hl7_demo" />
-            </bean>
-        </constructor-arg>
-    </bean>
-
-    <bean id="mongodb" class="org.apache.camel.component.mongodb.MongoDbComponent"></bean>
 
     <bean id="hl7decoder" class="org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory"/>
     <bean id="hl7encoder" class="org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory"/>
