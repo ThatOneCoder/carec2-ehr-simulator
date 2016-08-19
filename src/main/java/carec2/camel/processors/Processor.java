@@ -73,6 +73,12 @@ public class Processor {
         }
     }
 
+    public void print(String msg) {
+        System.out.println("RAW MESSAGE");
+        System.out.println("TESTING");
+        System.out.println(msg);
+    }
+
     public HL7Message createHL7Message(String inMessage){
         HL7Message persist = null;
         try{

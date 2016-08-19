@@ -1,15 +1,15 @@
 package carec2.camel.routes;
 
 import carec2.camel.processors.Processor;
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.spring.boot.FatJarRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Router extends RouteBuilder {
+public class Router extends FatJarRouter {
     private static Logger log = LoggerFactory.getLogger(Router.class);
 
     @Override
@@ -26,7 +26,17 @@ public class Router extends RouteBuilder {
         String ehrServer = processor.getPropValues("ehr.server");
         String ehrPort = processor.getPropValues("ehr.port");
 
+//      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Camel-Route")
+//                .unmarshal()
+//                .hl7(false)
+//                .to("mllpport")
+//                .to("bean:respondACK?method=process");
 
+        from("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true").routeId("Audit-Camel-Route")
+//                .onException(Exception.class).handled(true)
+//                .setExchangePattern(ExchangePattern.InOnly)
+                .to("bean:processor?method=print")
+                .transform().simple("bean:hl7MessageService?method=createHL7Message")
         from("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true").routeId("Audit-Camel-Route")
 //                .onException(Exception.class).handled(true)
 //                .setExchangePattern(ExchangePattern.InOnly)
@@ -35,41 +45,12 @@ public class Router extends RouteBuilder {
                 .to("bean:processor?method=publishToQueue")
                 .to("bean:respondACK?method=process");
 
-        from("file:" + hl7Dir + "?noop=true").routeId("EHR-Camel-Route")
-                .unmarshal()
-                .hl7(false)
-                .to("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true")
-                .to("bean:respondACK?method=process");
-
-
-//        from("ref:mllpport").routeId("Audit-Camel-Route")
-//     //           .onException(Exception.class).handled(true)
-//     //           .setExchangePattern(ExchangePattern.InOnly)
-//                .transform().simple("bean:hl7messageService?method=createHL7Message")
-//                .to("mongodb:mongo?database=microservices&collection=messages&operation=insert")
-//                .to("bean:processor?method=publishToQueue")
-//                .to("bean:respondACK?method=process");
-
 //        from("activemq:").routeId("Validation-Camel-Route")
 //                .onException(Exception.class).handled(true)
 //                .setExchangePattern(ExchangePattern.InOnly)
 //                .to("bean:processValidation?method...")
 //                .to("bean:processor?method=publishToQueue")
 //                .to("bean:respondACK?method=process");
-        /*
-        from("timer:trigger")
-                .transform().simple("bean:hl7messageService?method=createHL7Message")
-               .log("Before audit ...")
-               .to("log:carec2?level=INFO&showBody=true")
-                .to("mongodb:mongo?database=microservices&collection=messages&operation=insert")
-               .log("After audit")
-               .to("log:carec2?level=INFO&showAll=true");
-    */
-    }
-
-    @Bean
-    String hl7Message() {
-        return "I'm Spring bean!";
     }
 
 }

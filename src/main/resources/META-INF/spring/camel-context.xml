@@ -11,16 +11,37 @@
 
     <context:component-scan base-package="carec2"/>
 
+    <!-- ================================== -->
+    <!-- Define camel context               -->
+    <!-- ================================== -->
+    <camel:camelContext id="camel">
+        <!-- Location for route scan -->
+        <camel:package>carec2.camel.routes</camel:package>
+    </camel:camelContext>
+
+    <!-- ================================== -->
+    <!-- Define netty  codecs               -->
+    <!-- ================================== -->
+    <!-- ChannelBuffer/ByteBuf to String -->
+    <bean id="stringDecoder" class="org.jboss.netty.handler.codec.string.StringDecoder"/>
+
+    <!-- String to ChannelBuffer/ByteBuf -->
+    <bean id="stringEncoder" class="org.jboss.netty.handler.codec.string.StringEncoder"/>
+
+
     <bean id="mongo" class="com.mongodb.Mongo">
         <constructor-arg index="0">
             <bean class="com.mongodb.MongoURI">
                 <constructor-arg index="0"
-                                 value="mongodb://localhost:27017/microservices" />
+                                 value="mongodb://localhost:27017/ldef_hl7_demo" />
             </bean>
         </constructor-arg>
     </bean>
 
     <bean id="mongodb" class="org.apache.camel.component.mongodb.MongoDbComponent"></bean>
+
+    <bean id="hl7decoder" class="org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory"/>
+    <bean id="hl7encoder" class="org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory"/>
 
     <bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
         <property name="location" value="classpath:endpoint.properties"/>
@@ -36,8 +57,8 @@
        <contextScan/>
         <camel:package>org.apache.camel.spring.example</camel:package>
         <!-- configure the server/port in the endpoint.properties file  -->
-        <camel:endpoint id="mllpport"
-                        uri="mina:tcp://localhost:4444?sync=true&amp;codec=#hl7codec"/>
+        <camel:endpoint id="EHRSimulator"
+                        uri="netty4:tcp://{{endpoint.server}}:{{endpoint.port}}?sync=true&amp;encoder=#hl7encoder&amp;decoder=#hl7decoder"/>
     </camelContext>
 
 </beans>
