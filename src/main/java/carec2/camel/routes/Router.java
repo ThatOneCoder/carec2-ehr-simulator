@@ -1,11 +1,14 @@
 package carec2.camel.routes;
 
+import carec2.camel.processors.FilterProcessor;
 import carec2.camel.processors.Processor;
+import carec2.camel.processors.ValidationProcessor;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.spring.boot.FatJarRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -50,7 +53,8 @@ public class Router extends FatJarRouter {
 //                .onException(Exception.class).handled(true)
 //                .setExchangePattern(ExchangePattern.InOnly)
                 .to("bean:processor?method=print")
-                .transform().simple("bean:hl7MessageService?method=createHL7Message")
+                .transform().simple("bean:hl7MessageService?method=createHL7Message");
+
         from("netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true").routeId("Audit-Camel-Route")
 //                .onException(Exception.class).handled(true)
 //                .setExchangePattern(ExchangePattern.InOnly)
