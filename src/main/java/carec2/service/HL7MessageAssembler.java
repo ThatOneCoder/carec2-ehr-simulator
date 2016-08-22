@@ -47,9 +47,9 @@ public class HL7MessageAssembler {
     //        System.out.println("episode: " + episode);
     //        System.out.print(msg);
 
-            String dt = "dateof( now() )";
+     //       String dt = "dateof( now() )";
             String type = String.valueOf(terser.get("/MSH-9-1"));
 
-            return new HL7Message(episode, msg, status, dt, type );
+            return new HL7Message(episode, msg, status, date.toString(), type );
     }
 }
