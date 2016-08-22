@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProcessorAudit {
+public class AuditProcessor {
 
     @Autowired
     HL7MessageRepository hl7MessageRepository;
