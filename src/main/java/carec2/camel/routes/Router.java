@@ -48,16 +48,17 @@ public class Router extends FatJarRouter {
 
 
       // EHR Simulator
-      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Simulator")
-                .unmarshal()
-                .hl7(false)
-                .to(mllp);
+//      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Simulator")
+//                .unmarshal()
+//                .hl7(false)
+//                .to(mllp);
 
       // Audit Route
-        from(mllp).routeId("Audit-Camel-Route")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-                .bean(auditProcessor, "processMessage")
-                .end();
+//        from(mllp).routeId("Audit-Camel-Route")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+//                .bean(auditProcessor, "processMessage")
+//                .bean(processor, "enqueueMessage(${body}, validate)")
+//                .end();
 
 //        from("activemq:").routeId("Validation-Camel-Route")
 //                .onException(Exception.class).handled(true)
@@ -68,27 +69,27 @@ public class Router extends FatJarRouter {
 
         /*from("activemq:")*/
       // Validation Route
-//        from(mllp).routeId("Validation-Camel-Route")
-//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-//                .bean(validationProcessor, "process")
-//                .choice()
-//                    .when()
-//                        .simple("${body} == true")
-////                        .log("publish to QUEUE")
-//                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-//                        .log(LoggingLevel.INFO, "publish to QUEUE")
-//                        .bean(processor, "publishToQueue(${body}, storeToFS)")
-//                        .to("mock:filterQueue")
-//                    .otherwise()
-////                        .simple("${body} != true")
-////                        .log("do NOT publish to QUEUE")
-//                        .log(LoggingLevel.INFO, "do NOT publish to QUEUE")
-////                        .to("log:carec2?level=INFO&showBody=true")
-////                        .to("log:carec2?level=INFO&showAll=true")
-//                        .to("mock:doNothing")
-////                        .end()
-////                .to("bean:respondACK?method=process")
-//                .end();
+       from("mock:test").to("bean:processor?method=dequeueMessage").routeId("Validation-Camel-Route")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+                .bean(validationProcessor, "process")
+                .choice()
+                    .when()
+                        .simple("${body} == true")
+//                        .log("publish to QUEUE")
+                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+                        .log(LoggingLevel.INFO, "publish to QUEUE")
+                        .bean(processor, "enqueueMessage(${body}, storeToFS)")
+                        .to("mock:filterQueue")
+                    .otherwise()
+//                        .simple("${body} != true")
+//                        .log("do NOT publish to QUEUE")
+                        .log(LoggingLevel.INFO, "do NOT publish to QUEUE")
+//                        .to("log:carec2?level=INFO&showBody=true")
+//                        .to("log:carec2?level=INFO&showAll=true")
+                        .to("mock:doNothing")
+//                        .end()
+//                .to("bean:respondACK?method=process")
+                .end();
 //                .to("bean:validationProcessor?method=process")
 //                .to("bean:processor?method=publishToQueue")
 

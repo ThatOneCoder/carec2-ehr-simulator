@@ -10,8 +10,6 @@ package carec2.camel.processors;
 *
 * */
 
-// java libs
-
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
@@ -19,13 +17,6 @@ import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-
-// hapi libs
 
 @Component
 public class ValidationProcessor {
@@ -35,11 +26,6 @@ public class ValidationProcessor {
         // convert incoming message to a string
         String msg = in.toString();
 
-        // print message to console
-//        System.out.println("---MESSAGE TO CONSOLE---");
-//        printMultilineMessageToScreen(msg);
-
-//        System.out.println("Is this HL7 message valid? |" + validateHL7(msg) + "|");
         return validateHL7(msg);
     }
 
@@ -59,15 +45,6 @@ public class ValidationProcessor {
         }
 
         return response;
-    }
-
-    private void printMultilineMessageToScreen(String msg) throws IOException {
-        BufferedReader reader = new BufferedReader(new StringReader(msg));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-        }
     }
 }
 

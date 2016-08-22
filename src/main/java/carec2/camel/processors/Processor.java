@@ -1,5 +1,7 @@
 package carec2.camel.processors;
 
+import ca.uhn.hl7v2.model.Message;
+import carec2.camel.ActiveMQConsumer;
 import carec2.camel.ActiveMQProducer;
 import carec2.domain.HL7Message;
 import carec2.service.HL7MessageAssembler;
@@ -43,7 +45,7 @@ public class Processor {
         return result;
     }
 
-    public void publishToQueue(String msg, String channel) throws IOException {
+    public void enqueueMessage(String msg, String channel) throws IOException {
 
         String activemqHost = getPropValues("activemq-host");
         String activemqPort = getPropValues("activemq-port");
@@ -60,6 +62,21 @@ public class Processor {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String dequeueMessage(Message in, String channel) throws Exception {
+
+        ActiveMQConsumer activeMQConsumer = new ActiveMQConsumer("", "", "");
+
+        String activemqHost = getPropValues("activemq-host");
+        String activemqPort = getPropValues("activemq-port");
+        String activemqUri = "tcp://" + activemqHost + ":" + activemqPort;
+
+        ActiveMQConsumer consumer = new ActiveMQConsumer(activemqUri, "admin", "admin");
+        String msg;
+//            consumer.startReceiving("demo.queue");
+        msg = consumer.receiveNextMessage(channel);
+        return msg;
     }
 
 
