@@ -43,10 +43,10 @@ public class Processor {
         return result;
     }
 
-    public void publishToQueue(String msg) throws IOException {
+    public void publishToQueue(String msg, String channel) throws IOException {
 
-        String activemqHost = (System.getenv("ACTIVEMQ_SERVICE_HOST")== null) ? getPropValues("activemq-host") : System.getenv("ACTIVEMQ_SERVICE_HOST");
-        String activemqPort = (System.getenv("ACTIVEMQ_SERVICE_PORT")== null) ? getPropValues("activemq-port") : System.getenv("ACTIVEMQ_SERVICE_PORT");
+        String activemqHost = getPropValues("activemq-host");
+        String activemqPort = getPropValues("activemq-port");
 
         String activemqUri = "tcp://" + activemqHost + ":" + activemqPort;
 
@@ -56,7 +56,7 @@ public class Processor {
             // attempt to add the message to an ActiveMQ Queue
 
             printMultilineMessageToScreen(msg);
-            producer.sendMessage("demo.queue", msg);
+            producer.sendMessage(channel, msg);
         } catch (Exception e) {
             e.printStackTrace();
         }

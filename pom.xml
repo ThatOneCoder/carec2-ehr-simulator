@@ -31,10 +31,13 @@
             <version>1.6.1</version>
         </dependency>
 
+        <!-- Spring Core-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
+
+        <!-- Camel -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
@@ -67,16 +70,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-mina</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-mina2</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
             <artifactId>camel-ftp</artifactId>
             <version>2.10.6</version>
         </dependency>
@@ -85,14 +78,11 @@
             <artifactId>camel-hl7</artifactId>
             <version>${camel.version}</version>
         </dependency>
+
+        <!-- Netty Endpoint -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-netty4</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-cxf</artifactId>
             <version>${camel.version}</version>
         </dependency>
         <dependency>
