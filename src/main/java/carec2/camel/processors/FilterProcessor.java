@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.GenericMessage;
+import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.GenericModelClassFactory;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
@@ -12,15 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class FilterProcessor {
 
+    private String message;
+
     public boolean process(String msg) throws Exception {
 
-
 //        if (isERMessage(msg) && isA03Message(msg)) {
-        if (isERMessage(msg) && isA03Message(msg)) {
+        if (isERMessage(msg)) {
             return true;
         } else {
-//            return false;
-            return true; // always returning true... for now until I can get the orig message
+            return false;
         }
     }
 
@@ -56,6 +57,7 @@ public class FilterProcessor {
         return response;
     }
 
+
     public boolean isA03Message(String msg) throws HL7Exception {
         boolean response = false;
 
@@ -81,6 +83,7 @@ public class FilterProcessor {
 
         if (msg.contains("ADT")) {
             if (msg.contains("A03")) {
+
                 response = true;
             }
         } else {
@@ -90,4 +93,14 @@ public class FilterProcessor {
 
         return response;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message in) {
+        String message = in.toString();
+        this.message = message;
+    }
+
 }

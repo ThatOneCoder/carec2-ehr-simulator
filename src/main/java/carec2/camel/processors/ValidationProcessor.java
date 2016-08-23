@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ValidationProcessor {
 
+    private String message;
+
     public Boolean process(Message in) throws Exception {
 
         // convert incoming message to a string
@@ -45,6 +47,17 @@ public class ValidationProcessor {
         }
 
         return response;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message in) {
+        String message = in.toString();
+        System.out.println("SET MESSAGE");
+        System.out.println(message);
+        this.message = message;
     }
 }
 

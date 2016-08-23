@@ -32,11 +32,11 @@ public class Router extends FatJarRouter {
     @Autowired
     MyProcessor processor;
 
-    CamelContext camelContext = new DefaultCamelContext();
+//    CamelContext camelContext = new DefaultCamelContext();
 
     @Override
     public void configure() throws Exception {
-        camelContext.addComponent("activemq-test", activeMQComponent("vm://localhost?broker.persistent=false"));
+//        camelContext.addComponent("activemq-test", activeMQComponent("vm://localhost?broker.persistent=false"));
        // onException(Exception.class).handled(true)
            //     .bean(MessageService.class, "messageFailed")
           //      .transform().simple("Error processing this message.");
@@ -82,11 +82,12 @@ public class Router extends FatJarRouter {
       // Validation Route
         from("timer://foo?fixedRate=true&period=2000").routeId("Validation-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Validation-Camel-Route'")
-                .process(processor)
-//                .setProperty("OriginalMessage", body())
-//                .log(LoggingLevel.INFO, "RAWWWWW", body().toString())
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
                 .bean(routerProcessor, "dequeueMessage(validate)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Saving Original Message to Bean")
+                .bean(validationProcessor, "setMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Saved Original Message to Bean")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
                 .log(LoggingLevel.INFO, "RAW Message")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
@@ -96,12 +97,11 @@ public class Router extends FatJarRouter {
                     .when()
                         .simple("${body} == true")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
+                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                        .bean(validationProcessor, "getMessage")
+                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Publishing to 'store' Queue")
-                        .setExchangePattern(ExchangePattern.InOnly)
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${header.OriginalMessage}")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${property.OriginalMessage}")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", body().toString())
-                        .bean(routerProcessor, "enqueueMessage(${property.OriginalMessage}, filter)")
+                        .bean(routerProcessor, "enqueueMessage(${body}, filter)")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Published to 'filter' Queue")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
                     .otherwise()
@@ -111,29 +111,30 @@ public class Router extends FatJarRouter {
                 .end();
 
         // Filter Route
-        from("timer://foo?fixedRate=true&period=2000").routeId("Filter-Camel-Route")
+        from("timer://foo2?fixedRate=true&period=1000").routeId("Filter-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Filter-Camel-Route'")
-//                .setProperty("OriginalMessage", body())
-//                .log(LoggingLevel.INFO, "RAWWWWW", body().toString())
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
                 .bean(routerProcessor, "dequeueMessage(filter)")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Saving Original Message to Bean")
+                .bean(filterProcessor, "setMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Saved Original Message to Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
                 .log(LoggingLevel.INFO, "RAW Message")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Filtering Message")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Validating Message")
                 .bean(filterProcessor, "process")
                 .choice()
                     .when()
                         .simple("${body} == true")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
+                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                        .bean(filterProcessor, "getMessage")
+                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Publishing to 'store' Queue")
-                        .setExchangePattern(ExchangePattern.InOnly)
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${header.OriginalMessage}")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${property.OriginalMessage}")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", body().toString())
-                        .bean(routerProcessor, "enqueueMessage(${property.OriginalMessage}, store)")
+                        .bean(routerProcessor, "enqueueMessage(${body}, store)")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Published to 'store' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Filter-Camel-Route")
+                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
                 .otherwise()
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
