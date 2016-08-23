@@ -13,7 +13,7 @@ import java.util.Properties;
 
 
 @Component
-public class Processor {
+public class RouterProcessor {
 
     @Autowired
     private HL7MessageAssembler HL7MessageAssembler;
@@ -57,14 +57,14 @@ public class Processor {
         try {
             // attempt to add the message to an ActiveMQ Queue
 
-            printMultilineMessageToScreen(msg);
+//            printMultilineMessageToScreen(msg);
             producer.sendMessage(channel, msg);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public String dequeueMessage(Message in, String channel) throws Exception {
+    public String dequeueMessage(String channel) throws Exception {
 
         ActiveMQConsumer activeMQConsumer = new ActiveMQConsumer("", "", "");
 

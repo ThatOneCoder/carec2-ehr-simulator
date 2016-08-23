@@ -34,13 +34,13 @@
         <property name="charset" value="iso-8859-1"/>
     </bean>
 
+    <bean id="activemq"
+          class="org.apache.activemq.camel.component.ActiveMQComponent">
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+    </bean>
 
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
-       <contextScan/>
-        <camel:package>org.apache.camel.spring.example</camel:package>
-        <!-- configure the server/port in the endpoint.properties file  -->
-        <camel:endpoint id="EHRSimulator"
-                        uri="netty4:tcp://{{endpoint.server}}:{{endpoint.port}}?sync=true&amp;encoder=#hl7encoder&amp;decoder=#hl7decoder"/>
     </camelContext>
+
 
 </beans>
