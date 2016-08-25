@@ -56,19 +56,29 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
                 .to(mllp);
 
-      // Audit Route
-          from(mllp).routeId("Audit-Camel-Route")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Audit-Camel-Route'")
-                .log(LoggingLevel.INFO, "RAW Message")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Recording Message in MongoDB")
-                .bean(auditProcessor, "processMessage")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Recorded in MongoDB")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing Message")
-                .bean(routerProcessor, "enqueueMessage(${body}, validate)")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Enqueued")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Audit-Camel-Route")
+        from(mllp).routeId("Parse-Camel-Route")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Parse-Camel-Route'")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
+//                .bean(routerProcessor, "dequeueMessage(validate)")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+                .bean(parserProcessor, "parseAndSavePatient")
+                .bean(parserProcessor, "parseAndSaveEncounter")
+                .bean(parserProcessor, "parseAndSaveEpisode")
                 .end();
+
+//      // Audit Route
+//          from(mllp).routeId("Audit-Camel-Route")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Audit-Camel-Route'")
+//                .log(LoggingLevel.INFO, "RAW Message")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Recording Message in MongoDB")
+//                .bean(auditProcessor, "processMessage")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Recorded in MongoDB")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing Message")
+//                .bean(routerProcessor, "enqueueMessage(${body}, validate)")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Enqueued")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Audit-Camel-Route")
+//                .end();
 
 
 
@@ -156,13 +166,14 @@ public class Router extends SpringRouteBuilder {
 //                .end();
 
         //Parse Route
-        from("timer://foo?fixedRate=true&period=2000").routeId("Parse-Camel-Route")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Parse-Camel-Route'")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
-                .bean(routerProcessor, "dequeueMessage(validate)")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
-                .bean(parserProcessor, "parseMessage")
-                .end();
+      //  from("timer://foo?fixedRate=true&period=2000").routeId("Parse-Camel-Route")
+//        from(mllp).routeId("Parse-amel-Route")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Parse-Camel-Route'")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
+//                .bean(routerProcessor, "dequeueMessage(validate)")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+//                .bean(parserProcessor, "parseAndSaveMessage")
+//                .end();
     }
 
 }
