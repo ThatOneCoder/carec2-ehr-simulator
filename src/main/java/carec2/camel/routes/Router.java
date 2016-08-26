@@ -61,8 +61,11 @@ public class Router extends SpringRouteBuilder {
 //                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
 //                .bean(routerProcessor, "dequeueMessage(validate)")
 //                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+                .bean(parserProcessor, "setMessage(${body})")
                 .bean(parserProcessor, "parseAndSavePatient")
+                .bean(parserProcessor, "getMessage")
                 .bean(parserProcessor, "parseAndSaveEncounter")
+                .bean(parserProcessor, "getMessage")
                 .bean(parserProcessor, "parseAndSaveEpisode")
                 .end();
 

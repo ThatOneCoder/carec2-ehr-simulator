@@ -59,6 +59,10 @@ public class HL7MessageAssembler {
             Terser terser = setUp(message);
 
             String corporate_mrn = String.valueOf(terser.get("/PID-3-1"));
+            if(StringUtils.isEmpty(corporate_mrn)){
+                log.error("ERROR: Patient Corporate MRN can not be null");
+                return null;
+            }
             String facility_code = String.valueOf(terser.get("/MSH-4-2"));
             String last_name = String.valueOf(terser.get("/PID-5-1"));
             String first_name = String.valueOf(terser.get("/PID-5-2"));
@@ -93,6 +97,10 @@ public class HL7MessageAssembler {
             String admitSource = String.valueOf(terser.get("/PV1-14-2"));
             String patientType = String.valueOf(terser.get("/PV1-18"));
             String visitNbr = String.valueOf(terser.get("/PV1-19-1"));
+            if(StringUtils.isEmpty(visitNbr)){
+                log.error("ERROR: Encounter Visit Nbr can not be null");
+                return null;
+            }
             String dischargeDisposition = String.valueOf(terser.get("/PV1-36-2"));
             Timestamp facilityAdmitDate = convertToTimestamp(String.valueOf(terser.get("/PV1-44")));
             Timestamp dischargeDate = convertToTimestamp(String.valueOf(terser.get("/PV1-45")));
@@ -113,6 +121,10 @@ public class HL7MessageAssembler {
             Terser terser = setUp(message);
 
             String episodeNbr = String.valueOf(terser.get("/PID-18-1"));
+            if(StringUtils.isEmpty(episodeNbr)){
+                log.error("ERROR: Episode Nbr can not be null");
+                return null;
+            }
            // Hardcode as "CJR"
             String episodeType = "CJR";
             Timestamp episodeDate = convertToTimestamp(String.valueOf(terser.get("/PV1-44")));
@@ -152,27 +164,31 @@ public class HL7MessageAssembler {
     }
 
     private int getAge(String dob){
-        int year = Integer.parseInt(dob.substring(0, 4));
-        int month = Integer.parseInt(dob.substring(4, 6));
-        int day = Integer.parseInt(dob.substring(6));
+        int age = 0;
+            if(!StringUtils.isEmpty(dob)) {
+                int year = Integer.parseInt(dob.substring(0, 4));
+                int month = Integer.parseInt(dob.substring(4, 6));
+                int day = Integer.parseInt(dob.substring(6));
 
-        long currentTime = System.currentTimeMillis();
-        Calendar now = Calendar.getInstance();
-        now.setTimeInMillis(currentTime);
+                long currentTime = System.currentTimeMillis();
+                Calendar now = Calendar.getInstance();
+                now.setTimeInMillis(currentTime);
 
-        int nowMonth = now.get(Calendar.MONTH)+1;
-        int nowYear =  now.get(Calendar.YEAR);
-        int age = nowYear - year;
+                int nowMonth = now.get(Calendar.MONTH) + 1;
+                int nowYear = now.get(Calendar.YEAR);
+                age = nowYear - year;
 
-        if (month > nowMonth) {
-            age--;
-        } else if (month == nowMonth) {
-            int nowDay = now.get(Calendar.DATE);
+                if (month > nowMonth) {
+                    age--;
+                } else if (month == nowMonth) {
+                    int nowDay = now.get(Calendar.DATE);
 
-            if (day > nowDay) {
-                age--;
+                    if (day > nowDay) {
+                        age--;
+                    }
+                }
+                return age;
             }
-        }
         return age;
     }
 

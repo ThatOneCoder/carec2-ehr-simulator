@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class HL7MessageServiceImpl implements HL7MessageService{
 
@@ -105,7 +107,8 @@ public class HL7MessageServiceImpl implements HL7MessageService{
     public void savePatient(Patient patientPersist){
        Long id = patientRepository.findByCorporateMrn(patientPersist.getcorporateMrn());
         if (id != null){
-            patientRepository.update(patientPersist.getFirstName(), id);
+  //          patientRepository.update(patientPersist.getFirstName(), id);
+            log.info("Patient exists, it will update...");
         }else {
             patientRepository.save(patientPersist);
         }
@@ -114,22 +117,23 @@ public class HL7MessageServiceImpl implements HL7MessageService{
 
     @Override
     public void saveEncounter(Encounter encounterPersist){
-//        Long id = encounterRepository.findByVisitNbr(encounterPersist.getVisitNbr());
-//        if (id != null){
-//            encounterRepository.delete(id);
-//        }
-        encounterRepository.save(encounterPersist);
-        encounterRepository.flush();
+      List<Long> ids = encounterRepository.findByVisitNbr(encounterPersist.getVisitNbr());
+        if (ids != null && ids.size() > 0){
+            log.info("Encounter exists, it will update...");
+        }else {
+            encounterRepository.save(encounterPersist);
+        }
     }
 
     @Transactional
     @Override
     public void saveEpisode(Episode episodePersist){
-//        Long id = episodeRepository.findByEpisodeNbr(episodePersist.getEpisodeNbr());
-//        if (id != null){
-//            episodeRepository.delete(id);
-//        }
-        episodeRepository.save(episodePersist);
-        episodeRepository.flush();
+        List<Long> ids  = episodeRepository.findByEpisodeNbr(episodePersist.getEpisodeNbr());
+        if (ids != null && ids.size() > 0){
+            log.info("Episode exists, it will update...");
+        } else {
+            episodeRepository.save(episodePersist);
+        }
+
     }
 }

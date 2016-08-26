@@ -82,11 +82,18 @@ public class Episode implements Serializable {
         if (id == null || obj == null || getClass() != obj.getClass())
             return false;
         Episode that = (Episode) obj;
-        return id.equals(that.id);
+        return id.equals(that.id)
+                && (episodeNbr == that.episodeNbr || (episodeNbr != null && episodeNbr.equals(that.getEpisodeNbr()))
+                && (corporateMrn == that.corporateMrn || (corporateMrn != null && corporateMrn.equals(that.getcorporateMrn()))));
     }
     @Override
     public int hashCode() {
-        return id == null ? 0 : id.hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((episodeNbr == null) ? 0 : episodeNbr.hashCode());
+        result = prime * result + (int)(long)id;
+        result = prime * result + ((corporateMrn == null) ? 0 : corporateMrn.hashCode());
+        return result;
     }
 
     @Override

@@ -174,7 +174,7 @@ public class Patient implements Serializable {
         return id.equals(that.id)
                 && (firstName == that.firstName || (firstName != null && firstName.equals(that.getFirstName())))
                 && (lastName == that.lastName || (lastName != null && lastName .equals(that.getLastName())))
-                && (corporateMrn == that.corporateMrn || (corporateMrn != null && corporateMrn.equals(that.getLastName())));
+                && (corporateMrn == that.corporateMrn || (corporateMrn != null && corporateMrn.equals(that.getcorporateMrn())));
     }
 
     @Override
