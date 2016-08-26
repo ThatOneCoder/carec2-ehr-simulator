@@ -11,14 +11,17 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@EnableJpaRepositories
 public class Carec2 extends SpringBootServletInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(Carec2.class);
 
     @Autowired
     private ApplicationContext applicationContext;
+
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {

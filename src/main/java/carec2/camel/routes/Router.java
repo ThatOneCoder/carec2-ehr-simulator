@@ -32,17 +32,13 @@ public class Router extends FatJarRouter {
     @Autowired
     RestProcessor restProcessor;
 
-//    CamelContext camelContext = new DefaultCamelContext();
+    @Autowired
+    ParserProcessor parserProcessor;
 
     @Override
     public void configure() throws Exception {
-//        camelContext.addComponent("activemq-test", activeMQComponent("vm://localhost?broker.persistent=false"));
-       // onException(Exception.class).handled(true)
-           //     .bean(MessageService.class, "messageFailed")
-          //      .transform().simple("Error processing this message.");
-
-        onException(Exception.class)
-                .log(LoggingLevel.ERROR, "carec2.camel.routes", "Unexpected exception ${exception}");
+          onException(Exception.class)
+                  .log(LoggingLevel.ERROR, "carec2.camel.routes", "Unexpected exception ${exception}");
 
         RouterProcessor routerProcessor = new RouterProcessor();
         String hl7Dir = routerProcessor.getPropValues("hl7-message-dir");
@@ -73,9 +69,9 @@ public class Router extends FatJarRouter {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Recording Message in MongoDB")
                 .bean(auditProcessor, "processMessage")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Recorded in MongoDB")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing Message to 'validate' queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing Message")
                 .bean(routerProcessor, "enqueueMessage(${body}, validate)")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Enqueued to 'validate' queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Enqueued")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Audit-Camel-Route")
                 .end();
 
@@ -169,6 +165,5 @@ public class Router extends FatJarRouter {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Notification-Camel-Route'")
                 .end();
     }
-
 
 }
