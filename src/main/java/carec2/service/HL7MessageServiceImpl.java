@@ -103,6 +103,7 @@ public class HL7MessageServiceImpl implements HL7MessageService{
         return "";
     }
 
+    @Transactional
     @Override
     public void savePatient(Patient patientPersist){
        Long id = patientRepository.findByCorporateMrn(patientPersist.getcorporateMrn());
@@ -114,7 +115,7 @@ public class HL7MessageServiceImpl implements HL7MessageService{
         }
     }
 
-
+    @Transactional
     @Override
     public void saveEncounter(Encounter encounterPersist){
       List<Long> ids = encounterRepository.findByVisitNbr(encounterPersist.getVisitNbr());
@@ -128,7 +129,7 @@ public class HL7MessageServiceImpl implements HL7MessageService{
     @Transactional
     @Override
     public void saveEpisode(Episode episodePersist){
-        List<Long> ids  = episodeRepository.findByEpisodeNbr(episodePersist.getEpisodeNbr());
+        List<Long> ids  = episodeRepository.findByEpisodeNbr(episodePersist.getEpisodeNbr(), episodePersist.getcorporateMrn());
         if (ids != null && ids.size() > 0){
             log.info("Episode exists, it will update...");
         } else {

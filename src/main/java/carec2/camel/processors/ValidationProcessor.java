@@ -20,7 +20,6 @@ import ca.uhn.hl7v2.parser.GenericModelClassFactory;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
-import org.apache.http.util.TextUtils;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,18 +1,12 @@
 package carec2.camel.routes;
 
 import carec2.camel.processors.*;
-import org.apache.camel.CamelContext;
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spring.SpringRouteBuilder;
-import org.apache.camel.spring.boot.FatJarRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static org.apache.activemq.camel.component.ActiveMQComponent.activeMQComponent;
 
 @Component
 public class Router extends SpringRouteBuilder {
@@ -41,26 +35,24 @@ public class Router extends SpringRouteBuilder {
           onException(Exception.class)
                   .log(LoggingLevel.ERROR, "carec2.camel.routes", "Unexpected exception ${exception}");
 
-        RouterProcessor routerProcessor = new RouterProcessor();
         String hl7Dir = routerProcessor.getPropValues("hl7-message-dir");
         String ehrServer = routerProcessor.getPropValues("ehr.server");
         String ehrPort = routerProcessor.getPropValues("ehr.port");
+        String storeFSDir = routerProcessor.getPropValues("storeFS-dir");
 
         String mllp = "netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true";
 
-
-
-      // EHR Simulator
-      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Simulator")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
-                .log(LoggingLevel.INFO, "RAW Message")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Unmarshalling Message")
-                .unmarshal()
-                .hl7(false)
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Unmarshalled")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
-                .to(mllp);
+//      // EHR Simulator
+//      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Simulator")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
+//                .log(LoggingLevel.INFO, "RAW Message")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Unmarshalling Message")
+//                .unmarshal()
+//                .hl7(false)
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Unmarshalled")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
+//                .to(mllp);
 
       // Audit Route
         from(mllp).routeId("Audit-Camel-Route")
@@ -150,21 +142,56 @@ public class Router extends SpringRouteBuilder {
                         .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Filter-Camel-Route")
                 .end();
 
-        from("timer://foo3?fixedRate=true&period=3000").routeId("Notification-Camel-Route")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Notification-Camel-Route'")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification")
-                .bean(routerProcessor, "dequeueMessage(store)") //should be notify
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification")
-                .bean(restProcessor, "process(patient, 9011)")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sent Notification")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Response: ${body}")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification")
-                .bean(restProcessor, "process(encounter, 1234)")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sent Notification")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Response: ${body}")
-                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Notification-Camel-Route'")
+        //StoreToFS Route
+        from("timer://foo3?fixedRate=true&period=2000").routeId("StoreToFS-Camel-Route")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+                .bean(routerProcessor, "dequeueMessage(store)")
+                .convertBodyTo(byte[].class)
+                //     .to("file:C:/output/?fileName=${date:now:yyyyMMdd}/something.txt")
+                .to("file:"+storeFSDir)
+                .bean(routerProcessor, "enqueueMessage(${body}, parser)")
                 .end();
+
+        // Parser Route
+        from("timer://foo4?fixedRate=true&period=1000").routeId("Parser-Camel-Route")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Parser-Camel-Route'")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
+                .bean(routerProcessor, "dequeueMessage(parser)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+                .bean(parserProcessor, "setMessage(${body})")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Parse/Record Patient Message")
+                .bean(parserProcessor, "parseAndSavePatient")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification Patient Update")
+                .bean(restProcessor, "process(patient, ${body})")
+                .bean(parserProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Parse/Record Episode Message")
+                .bean(parserProcessor, "parseAndSaveEpisode")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification Episode Update")
+                .bean(restProcessor, "process(episode, ${body})")
+                .bean(parserProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Parse/Record Encounter Message")
+                .bean(parserProcessor, "parseAndSaveEncounter")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification Encounter Update")
+                .bean(restProcessor, "process(encounter, ${body})")
+                .bean(parserProcessor, "getMessage")
+                .bean(routerProcessor, "enqueueMessage(${body}, complete)")
+                .end();
+
+//        from("timer://foo3?fixedRate=true&period=3000").routeId("Notification-Camel-Route")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Notification-Camel-Route'")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification")
+//                .bean(routerProcessor, "dequeueMessage(store)") //should be notify
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Dequeued")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification")
+//                .bean(restProcessor, "process(patient, 9011)")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sent Notification")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Response: ${body}")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sending Notification")
+//                .bean(restProcessor, "process(encounter, 1234)")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Sent Notification")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Response: ${body}")
+//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Notification-Camel-Route'")
+//                .end();
     }
 
 }

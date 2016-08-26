@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 @Transactional(readOnly=true)
 public interface EpisodeRepository extends CrudRepository<Episode, Long> {
-    @Query(value = "SELECT ep.id FROM Episode ep where ep.episode_nbr=?1", nativeQuery = true)
-    List<Long> findByEpisodeNbr(String episodeNbr);
+    @Query(value = "SELECT ep.id FROM Episode ep where ep.episode_nbr=?1 AND ep.corporate_mrn=?2", nativeQuery = true)
+    List<Long> findByEpisodeNbr(String episodeNbr, String corporateMrn);
 }
