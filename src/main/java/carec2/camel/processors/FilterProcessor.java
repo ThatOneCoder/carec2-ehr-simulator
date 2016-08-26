@@ -17,8 +17,7 @@ public class FilterProcessor {
 
     public boolean process(String msg) throws Exception {
 
-//        if (isERMessage(msg) && isA03Message(msg)) {
-        if (isERMessage(msg)) {
+        if (isMaleOrFemale(msg)) {
             return true;
         } else {
             return false;
@@ -51,6 +50,30 @@ public class FilterProcessor {
             }
         } else {
             // return true for ORU (HACK!!!)
+            response = true;
+        }
+
+        return response;
+    }
+
+    private boolean isMaleOrFemale(String msg) throws HL7Exception {
+        boolean response = false;
+
+        //TODO: if the message is not an ER message, return false, else return true
+
+        // create hapi context
+        HapiContext context = new DefaultHapiContext();
+
+        // set up
+        context.setModelClassFactory(new GenericModelClassFactory());
+        context.setValidationContext(ValidationContextFactory.noValidation());
+        GenericMessage genMessage = (GenericMessage) context.getPipeParser().parse(msg);
+        Terser terser = new Terser(genMessage);
+
+        // parse message for content
+        String sex = String.valueOf(terser.get("/PID-8"));
+
+        if (! sex.equals("A")) {
             response = true;
         }
 
