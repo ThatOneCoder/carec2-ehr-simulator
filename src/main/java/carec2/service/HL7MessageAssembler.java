@@ -90,7 +90,7 @@ public class HL7MessageAssembler {
         try{
             Terser terser = setUp(message);
 
-            String patientClass = String.valueOf(terser.get("/PV1-1-1"));
+            String patientClass = String.valueOf(terser.get("/PV1-2-1"));
             String admitType =  String.valueOf(terser.get("/PV1-4"));
             String preadmitNbr = String.valueOf(terser.get("/PV1-5-1"));
             String hospitalService = String.valueOf(terser.get("/PV1-10"));

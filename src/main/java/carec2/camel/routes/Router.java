@@ -42,19 +42,19 @@ public class Router extends SpringRouteBuilder {
 
         String mllp = "netty4:tcp://" + ehrServer + ":" + ehrPort + "?sync=true";
 
-//      // EHR Simulator
-//      from("file:" + hl7Dir + "?noop=true").routeId("EHR-Simulator")
-//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
-//                .log(LoggingLevel.INFO, "RAW Message")
-//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
-//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Unmarshalling Message")
-//                .unmarshal()
-//                .hl7(false)
-//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Unmarshalled")
-//                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
-//                .to(mllp);
+        // EHR Simulator
+        from("file:" + hl7Dir + "?noop=true").routeId("EHR-Simulator")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
+                .log(LoggingLevel.INFO, "RAW Message")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Unmarshalling Message")
+                .unmarshal()
+                .hl7(false)
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Unmarshalled")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
+                .to(mllp);
 
-      // Audit Route
+        // Audit Route
         from(mllp).routeId("Audit-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Audit-Camel-Route'")
                 .log(LoggingLevel.INFO, "RAW Message")
@@ -148,7 +148,7 @@ public class Router extends SpringRouteBuilder {
                 .bean(routerProcessor, "dequeueMessage(store)")
                 .convertBodyTo(byte[].class)
                 //     .to("file:C:/output/?fileName=${date:now:yyyyMMdd}/something.txt")
-                .to("file:"+storeFSDir)
+                .to("file:"+storeFSDir+ "/?fileName=FS-${date:now:yyyyMMddHHmmssSSS}.txt")
                 .bean(routerProcessor, "enqueueMessage(${body}, parser)")
                 .end();
 

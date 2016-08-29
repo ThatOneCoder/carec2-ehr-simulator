@@ -46,7 +46,7 @@ public class RestProcessor {
         HttpResponse response = null;
 
         try {
-            HttpPost request = new HttpPost("http://localhost:8181/carec2/notify");
+            HttpPost request = new HttpPost("http://localhost:8080/carec2/notify");
             StringEntity params =new StringEntity("{\n" +
                     "    \"eventType\":    \"change\",\n" +
                     "    \"eventDate\":    \"" + date + "\",\n" +
