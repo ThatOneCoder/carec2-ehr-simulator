@@ -11,17 +11,6 @@
 
     <context:component-scan base-package="carec2.camel"/>
 
-    <bean id="mongo" class="com.mongodb.Mongo">
-        <constructor-arg index="0">
-            <bean class="com.mongodb.MongoURI">
-                <constructor-arg index="0"
-                                 value="mongodb://localhost:27017/microservices" />
-            </bean>
-        </constructor-arg>
-    </bean>
-
-    <bean id="mongodb" class="org.apache.camel.component.mongodb.MongoDbComponent"></bean>
-
     <bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
         <property name="location" value="classpath:endpoint.properties"/>
     </bean>
