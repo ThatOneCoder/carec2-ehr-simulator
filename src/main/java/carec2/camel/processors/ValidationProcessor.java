@@ -20,13 +20,31 @@ import ca.uhn.hl7v2.parser.GenericModelClassFactory;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Arrays;
 
 @Component
 public class ValidationProcessor {
 
     private String message;
 
+    // getters and setters
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+//        String message = in.toString();
+//        System.out.println("SET MESSAGE");
+//        System.out.println(message);
+        this.message = message;
+    }
+
+    // hl7 validation
     public Boolean process(Message in) throws Exception {
 
         // convert incoming message to a string
@@ -72,16 +90,6 @@ public class ValidationProcessor {
         return response;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(Message in) {
-        String message = in.toString();
-        System.out.println("SET MESSAGE");
-        System.out.println(message);
-        this.message = message;
-    }
 
     private boolean hasRequiredFields(String msg) throws HL7Exception {
         boolean response = true;
@@ -112,11 +120,11 @@ public class ValidationProcessor {
             System.out.println("Message Error: 'Missing Required Field' - [EVN-2] (Event Date)");
         }
 
-        if(pid3.equals("null")) {
+        if (pid3.equals("null")) {
             System.out.println("Message Error: 'Missing Required Field' - [PID-3] (Patient ID)");
         }
 
-        if(pv12.equals("null")) {
+        if (pv12.equals("null")) {
             System.out.println("Message Error: 'Missing Required Field' - [PV1-2] (Patient Class)");
         }
 
@@ -126,6 +134,7 @@ public class ValidationProcessor {
 
         return response;
     }
+
 
     private boolean hasPV1(String msg) throws HL7Exception {
         boolean response = false;
@@ -141,6 +150,7 @@ public class ValidationProcessor {
         return response;
     }
 
+
     private boolean hasPV1AfterPID(String msg) throws HL7Exception {
         boolean response = false;
 
@@ -150,11 +160,90 @@ public class ValidationProcessor {
         String pid = "PID";
 
         if (msg.contains("PV1") && msg.contains("PID")) {
-            if(msg.indexOf(pid) < msg.indexOf(pv1)) {
+            if (msg.indexOf(pid) < msg.indexOf(pv1)) {
                 response = true;
             } else {
                 System.out.println("Message Error: 'Invalid Structure | Incorrect Segment Order' - Segment [PV-1] Found Before Segment [PID-3]");
             }
+        }
+
+        return response;
+    }
+
+
+    // csv validation
+    public boolean validateCsv(String msg) {
+        boolean response = true;
+
+        String[] fields = msg.split(",");
+
+        // returns false if any required field is missing
+        response = csvHasRequiredFields(fields);
+        if (! response) {
+            return response;
+        }
+
+        // returns false if the process duration field is not numeric
+        response = isProcessDurationNumeric(fields);
+
+        if (! response) {
+            return response;
+        }
+
+        // last check so no short circuit required
+        // returns false if visit number has more than 10 characters
+        response = isVisitNumberValid(fields);
+
+        return response;
+    }
+
+
+    private boolean csvHasRequiredFields(String[] fields) {
+        boolean response = true;
+
+        // required columns indexes
+        // csv cols 1-5 and 9 are required
+        Integer[] reqList = {0, 1, 2, 3, 4, 8};
+
+        int i = 0;
+        for (String field : fields) {
+            if (Arrays.asList(reqList).contains(i)) {
+                if (field.equals("null") || field.equals("") || field.length() == 0) {
+                    response = false;
+                    int missing_col = i + 1;
+                    System.out.println("Invalid CSV Record:\t[Missing Required Field] - Column #" + missing_col);
+                }
+            }
+            i++;
+        }
+        return response;
+    }
+
+
+    private boolean isProcessDurationNumeric(String[] fields) {
+        boolean response = true;
+
+        // PROC_DUR_MIN column (column 16)
+        String field = fields[15];
+
+        if (! NumberUtils.isNumber(field)) {
+            response = false;
+            System.out.println("Invalid CSV Record:\t" + " [Numeric Only] - Column #" + field);
+        }
+
+        return response;
+    }
+
+
+    private boolean isVisitNumberValid(String[] fields) {
+        boolean response = true;
+
+        // VISIT_NBR column (column 5)
+        String field = fields[4];
+
+        if(field.length() > 10) {
+            response = false;
+            System.out.println("Invalid CSV Record:\t" + " [Max 10 Characters] - Column #" + field);
         }
 
         return response;

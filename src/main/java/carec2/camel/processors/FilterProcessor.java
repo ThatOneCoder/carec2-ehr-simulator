@@ -8,6 +8,7 @@ import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.GenericModelClassFactory;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,6 +16,17 @@ public class FilterProcessor {
 
     private String message;
 
+    // getters and setters
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+//        String message = in.toString();
+        this.message = message;
+    }
+
+    // hl7 filtration
     public boolean process(String msg) throws Exception {
 
         if (isMaleOrFemale(msg)) {
@@ -117,13 +129,33 @@ public class FilterProcessor {
         return response;
     }
 
-    public String getMessage() {
-        return message;
+
+    // csv filtration
+    public boolean filterCsv(String msg) {
+        boolean response = true;
+
+        String[] fields = msg.split(",");
+
+        // returns false if any required field is missing
+        response = isSurgicalCaseRecord(fields);
+        if (! response) {
+            return response;
+        }
+
+        return response;
     }
 
-    public void setMessage(Message in) {
-        String message = in.toString();
-        this.message = message;
-    }
+    public boolean isSurgicalCaseRecord(String[] fields) {
+        boolean response = true;
 
+        // CCL_QUERY_TYPE column (column 1)
+        String field = fields[0];
+
+        if ( ! field.equals("Surgical_case_record")) {
+            response = false;
+            System.out.println("Non-Standard CSV Record:\t" + " [Incorrect Record Type | Non-Surgical-Case-Record] - Column #" + field);
+        }
+
+        return response;
+    }
 }
