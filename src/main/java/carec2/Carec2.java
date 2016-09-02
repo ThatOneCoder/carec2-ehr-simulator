@@ -11,14 +11,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-;
 
 @SpringBootApplication
-@EnableJpaRepositories
-@EnableTransactionManagement
 public class Carec2 extends SpringBootServletInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(Carec2.class);

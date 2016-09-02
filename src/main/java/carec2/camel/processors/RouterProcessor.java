@@ -1,9 +1,5 @@
 package carec2.camel.processors;
 
-import carec2.camel.ActiveMQConsumer;
-import carec2.camel.ActiveMQProducer;
-import carec2.service.HL7MessageAssembler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -12,9 +8,6 @@ import java.util.Properties;
 
 @Component
 public class RouterProcessor {
-
-    @Autowired
-    private HL7MessageAssembler HL7MessageAssembler;
 
     public String getPropValues(String property) throws IOException {
         String result = "";
@@ -42,41 +35,6 @@ public class RouterProcessor {
         }
         return result;
     }
-
-    public void enqueueMessage(String msg, String channel) throws IOException {
-
-        String activemqHost = getPropValues("activemq-host");
-        String activemqPort = getPropValues("activemq-port");
-
-        String activemqUri = "tcp://" + activemqHost + ":" + activemqPort;
-
-        // create sender
-        ActiveMQProducer producer = new ActiveMQProducer(activemqUri, "admin", "admin");
-        try {
-            // attempt to add the message to an ActiveMQ Queue
-
-//            printMultilineMessageToScreen(msg);
-            producer.sendMessage(channel, msg);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String dequeueMessage(String channel) throws Exception {
-
-        ActiveMQConsumer activeMQConsumer = new ActiveMQConsumer("", "", "");
-
-        String activemqHost = getPropValues("activemq-host");
-        String activemqPort = getPropValues("activemq-port");
-        String activemqUri = "tcp://" + activemqHost + ":" + activemqPort;
-
-        ActiveMQConsumer consumer = new ActiveMQConsumer(activemqUri, "admin", "admin");
-        String msg;
-//            consumer.startReceiving("demo.queue");
-        msg = consumer.receiveNextMessage(channel);
-        return msg;
-    }
-
 
     public void printMultilineMessageToScreen(String msg) throws IOException {
         File file = new File(msg);
