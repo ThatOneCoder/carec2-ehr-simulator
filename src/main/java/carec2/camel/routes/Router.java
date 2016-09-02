@@ -32,8 +32,8 @@ public class Router extends SpringRouteBuilder {
 
     @Override
     public void configure() throws Exception {
-          onException(Exception.class)
-                  .log(LoggingLevel.ERROR, "carec2.camel.routes", "Unexpected exception ${exception}");
+        onException(Exception.class)
+                .log(LoggingLevel.ERROR, "carec2.camel.routes", "Unexpected exception ${exception}");
 
         String hl7Dir = routerProcessor.getPropValues("hl7-message-dir");
         String ehrServer = routerProcessor.getPropValues("ehr.server");
@@ -54,7 +54,7 @@ public class Router extends SpringRouteBuilder {
 //                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'EHR-Simulator-Route'")
 //                .to(mllp);
 
-      // Audit Route
+        // Audit Route
         from(mllp).routeId("Audit-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Audit-Camel-Route'")
                 .log(LoggingLevel.INFO, "RAW Message")
@@ -68,7 +68,7 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Audit-Camel-Route")
                 .end();
 
-      // Validation Route
+        // Validation Route
         from("timer://foo?fixedRate=true&period=2000").routeId("Validation-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Validation-Camel-Route'")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
@@ -83,26 +83,26 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Validating Message")
                 .bean(validationProcessor, "process")
                 .choice()
-                    .when()
-                        .simple("${body} == true")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(validationProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'filter' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, filter)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'filter' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
-                    .otherwise()
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(validationProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.validate' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, fail.validate)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'fail.validate' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
+                .when()
+                .simple("${body} == true")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(validationProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'filter' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, filter)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'filter' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
+                .otherwise()
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(validationProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.validate' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, fail.validate)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'fail.validate' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
                 .end();
 
         // Filter Route
@@ -120,26 +120,26 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Validating Message")
                 .bean(filterProcessor, "process")
                 .choice()
-                    .when()
-                        .simple("${body} == true")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(filterProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'store' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, store)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'store' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
+                .when()
+                .simple("${body} == true")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(filterProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'store' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, store)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'store' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
                 .otherwise()
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(filterProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.filter' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, fail.filter)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.filter' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Filter-Camel-Route")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(filterProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.filter' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, fail.filter)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.filter' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Filter-Camel-Route")
                 .end();
 
         //StoreToFS Route
@@ -148,7 +148,7 @@ public class Router extends SpringRouteBuilder {
                 .bean(routerProcessor, "dequeueMessage(store)")
                 .convertBodyTo(byte[].class)
                 //     .to("file:C:/output/?fileName=${date:now:yyyyMMdd}/something.txt")
-                .to("file:"+storeFSDir)
+                .to("file:" + storeFSDir)
                 .bean(routerProcessor, "enqueueMessage(${body}, parser)")
                 .end();
 
@@ -192,11 +192,10 @@ public class Router extends SpringRouteBuilder {
 //                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Notification Status: Response: ${body}")
 //                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Notification-Camel-Route'")
 //                .end();
-    }
 
-    // CSV Audit Route
+        // CSV Audit Route
 //        from(mllp).routeId("Audit-Camel-Route")
-    from("file:" + hl7Dir + "?noop=true").routeId("CSV-Audit-Camel-Route")
+        from("file:" + hl7Dir + "?noop=true").routeId("CSV-Audit-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Audit-Camel-Route'")
                 .log(LoggingLevel.INFO, "RAW Message")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
@@ -209,8 +208,8 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Audit-Camel-Route")
                 .end();
 
-    // CSV - Splitter Route
-    from("timer://foo?fixedRate=true&period=2000").routeId("CSV-Splitter-Camel-Route")
+        // CSV - Splitter Route
+        from("timer://foo?fixedRate=true&period=2000").routeId("CSV-Splitter-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Splitter-Camel-Route'")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
                 .bean(routerProcessor, "dequeueMessage(csv.split)")
@@ -218,7 +217,7 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "RAW Message")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "${body}")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Splitting Message")
-    // loops through CSV
+                // loops through CSV
                 .split().tokenize("\n")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'csv.validate' Queue")
                 .bean(routerProcessor, "enqueueMessage(${body}, csv.validate)")
@@ -226,8 +225,8 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Validating Message")
                 .end();
 
-    // CSV - Validation Route
-    from("timer://foo5?fixedRate=true&period=1000").routeId("CSV-Validation-Camel-Route")
+        // CSV - Validation Route
+        from("timer://foo5?fixedRate=true&period=1000").routeId("CSV-Validation-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Validation-Camel-Route'")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
                 .bean(routerProcessor, "dequeueMessage(csv.validate)")
@@ -241,30 +240,30 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Validating Message")
                 .bean(validationProcessor, "validateCsv")
                 .choice()
-                    .when()
-                        .simple("${body} == true")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(validationProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'csv.filter' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, csv.filter)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'csv.filter' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
-                    .otherwise()
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(validationProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.csv.validate' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, fail.csv.validate)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'fail.csv.validate' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
+                .when()
+                .simple("${body} == true")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(validationProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'csv.filter' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, csv.filter)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'csv.filter' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
+                .otherwise()
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(validationProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.csv.validate' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, fail.csv.validate)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'fail.csv.validate' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
                 .end();
 
-    // CSV - Filter Route
-    from("timer://foo6?fixedRate=true&period=2000").routeId("CSV-Filter-Camel-Route")
+        // CSV - Filter Route
+        from("timer://foo6?fixedRate=true&period=2000").routeId("CSV-Filter-Camel-Route")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Starting 'Filter-Camel-Route'")
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Dequeuing Message")
                 .bean(routerProcessor, "dequeueMessage(csv.filter)")
@@ -278,26 +277,27 @@ public class Router extends SpringRouteBuilder {
                 .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Validating Message")
                 .bean(filterProcessor, "filterCsv")
                 .choice()
-                    .when()
-                        .simple("${body} == true")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(filterProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'csv.store' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, csv.store)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'csv.store' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
+                .when()
+                .simple("${body} == true")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(filterProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'csv.store' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, csv.store)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueued to 'csv.store' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Validation-Camel-Route")
                 .otherwise()
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
-                        .bean(filterProcessor, "getMessage")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.csv.filter' Queue")
-                        .bean(routerProcessor, "enqueueMessage(${body}, fail.csv.filter)")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.csv.filter' Queue")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
-                        .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Filter-Camel-Route")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Not Valid")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetching Original Message from Bean")
+                .bean(filterProcessor, "getMessage")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Fetched Original Message from Bean")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.csv.filter' Queue")
+                .bean(routerProcessor, "enqueueMessage(${body}, fail.csv.filter)")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Enqueuing to 'fail.csv.filter' Queue")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Message Status: Message Ignored")
+                .log(LoggingLevel.INFO, "carec2.camel.routes.Router", "Ending 'Filter-Camel-Route")
                 .end();
 
+    }
 }
